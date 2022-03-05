@@ -33,7 +33,18 @@ class Bag(
     }
 }
 
-class Audience(val bag: Bag)
+class Audience(private val bag: Bag) {
+    fun buyTicketAndGetPaidAmount(ticket: Ticket): Long {
+        return if (bag.hasInvitation) {
+            bag.setTicket(ticket)
+            0
+        } else {
+            bag.minusAmount(ticket.fee)
+            bag.setTicket(ticket)
+            ticket.fee
+        }
+    }
+}
 
 class TicketOffice(
     private var amount: Long,
@@ -54,15 +65,9 @@ class TicketOffice(
 
 class TicketSeller(private val ticketOffice: TicketOffice) {
     fun sellTo(audience: Audience) {
-        if (audience.bag.hasInvitation) {
-            val ticket = ticketOffice.publishTicket()
-            audience.bag.setTicket(ticket)
-        } else {
-            val ticket = ticketOffice.publishTicket()
-            audience.bag.minusAmount(ticket.fee)
-            ticketOffice.plusAmount(ticket.fee)
-            audience.bag.setTicket(ticket)
-        }
+        val ticket = ticketOffice.publishTicket()
+        val paid = audience.buyTicketAndGetPaidAmount(ticket)
+        ticketOffice.plusAmount(paid)
     }
 }
 
