@@ -14,35 +14,37 @@ class Bag(
     private var ticket: Ticket?,
     private var amount: Long
 ) {
-    val hasTicket: Boolean
-        get() = ticket != null
 
-    val hasInvitation: Boolean
+    fun holdTicketAndGetPaidAmount(ticket: Ticket): Long {
+        return if (hasInvitation) {
+            setTicket(ticket)
+            0L
+        } else {
+            setTicket(ticket)
+            minusAmount(ticket.fee)
+            ticket.fee
+        }
+    }
+
+    private val hasInvitation: Boolean
         get() = invitation != null
 
-    fun setTicket(ticket: Ticket?) {
+    private fun setTicket(ticket: Ticket?) {
         this.ticket = ticket
     }
 
-    fun minusAmount(amount: Long) {
+    private fun minusAmount(amount: Long) {
         this.amount -= amount
     }
 
-    fun plusAmount(amount: Long) {
+    private fun plusAmount(amount: Long) {
         this.amount += amount
     }
 }
 
 class Audience(private val bag: Bag) {
     fun buyTicketAndGetPaidAmount(ticket: Ticket): Long {
-        return if (bag.hasInvitation) {
-            bag.setTicket(ticket)
-            0
-        } else {
-            bag.minusAmount(ticket.fee)
-            bag.setTicket(ticket)
-            ticket.fee
-        }
+        return bag.holdTicketAndGetPaidAmount(ticket)
     }
 }
 
