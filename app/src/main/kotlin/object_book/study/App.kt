@@ -52,7 +52,18 @@ class TicketOffice(
     }
 }
 
-class TicketSeller(val ticketOffice: TicketOffice) {
+class TicketSeller(private val ticketOffice: TicketOffice) {
+    fun sellTo(audience: Audience) {
+        if (audience.bag.hasInvitation) {
+            val ticket = ticketOffice.publishTicket()
+            audience.bag.setTicket(ticket)
+        } else {
+            val ticket = ticketOffice.publishTicket()
+            audience.bag.minusAmount(ticket.fee)
+            ticketOffice.plusAmount(ticket.fee)
+            audience.bag.setTicket(ticket)
+        }
+    }
 }
 
 
@@ -60,14 +71,6 @@ class Theater(
     private val ticketSeller: TicketSeller
 ) {
     fun enter(audience: Audience) {
-        if (audience.bag.hasInvitation) {
-            val ticket = ticketSeller.ticketOffice.publishTicket()
-            audience.bag.setTicket(ticket)
-        } else {
-            val ticket = ticketSeller.ticketOffice.publishTicket()
-            audience.bag.minusAmount(ticket.fee)
-            ticketSeller.ticketOffice.plusAmount(ticket.fee)
-            audience.bag.setTicket(ticket)
-        }
+        ticketSeller.sellTo(audience)
     }
 }
